@@ -1,0 +1,24 @@
+// Creación de esquema y internal_stage
+CREATE OR REPLACE SCHEMA MANAGE_DB.INTERNAL_STAGES
+CREATE OR REPLACE stage MANAGE_DB.INTERNAL_STAGES.JSONSTAGE
+
+
+// Podemos realizar carga desde un fichero local al internal stage creado o bien crear un external stage a la URL del fichero JSON
+CREATE OR REPLACE stage MANAGE_DB.EXTERNAL_STAGES.JSONSTAGE
+     url='s3://bucketsnowflake-jsondemo';
+
+// Definimos el formato tipo JSON
+CREATE OR REPLACE file format MANAGE_DB.FILE_FORMATS.JSONFORMAT
+    TYPE = JSON;
+    
+    
+CREATE OR REPLACE table PRIMERABBDD.PRIMERESQUEMA.JSON_RAW (
+    raw_file variant);
+    
+COPY INTO PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+    FROM @MANAGE_DB.INTERNAL_STAGES.JSONSTAGE
+    file_format= MANAGE_DB.FILE_FORMATS.JSONFORMAT
+    files = ('HR_data.json');
+    
+   
+SELECT * FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;

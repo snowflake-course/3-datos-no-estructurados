@@ -1,0 +1,32 @@
+ // Manejo de datos nested
+   
+SELECT RAW_FILE:job as job  FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+
+
+SELECT 
+      RAW_FILE:job.salary::INT as salary
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+
+
+
+SELECT 
+    RAW_FILE:first_name::STRING as first_name,
+    RAW_FILE:job.salary::INT as salary,
+    RAW_FILE:job.title::STRING as title
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+
+
+// Manejo de arrays
+
+SELECT
+    RAW_FILE:prev_company as prev_company
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+
+SELECT
+    RAW_FILE:prev_company[1]::STRING as prev_company
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+
+
+SELECT
+    ARRAY_SIZE(RAW_FILE:prev_company) as prev_company
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;

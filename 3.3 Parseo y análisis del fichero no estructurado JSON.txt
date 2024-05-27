@@ -1,0 +1,20 @@
+   // Seleccionar atributo/columna
+
+SELECT RAW_FILE:city FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+
+SELECT $1:first_name FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+
+
+// Seleccionar atributo/columna - formateo y conversión
+
+SELECT RAW_FILE:first_name::string as first_name  FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+
+SELECT RAW_FILE:id::int as id  FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+
+SELECT 
+    RAW_FILE:id::int as id,  
+    RAW_FILE:first_name::STRING as first_name,
+    RAW_FILE:last_name::STRING as last_name,
+    RAW_FILE:gender::STRING as gender
+
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
