@@ -3,6 +3,7 @@
 2. [Parseo y análisis del fichero no estructurado JSON](#schema2)
 3. [Manejo de datos nested y arrays](#schema3)
 4. [Jerarquías y flatten del fichero no estructurado JSON](#schema4)
+5. [Inserción de datos no estructurados JSON en la tabla objetivo (estructurados)](schema5)
 
 
 <hr>
@@ -233,3 +234,39 @@ FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW,
     TABLE(FLATTEN(RAW_FILE:spoken_languages)) f;
 ```
 ![](./img/jerarquia_flatten.png)
+
+<hr>
+
+<a name="schema5"></a>
+
+## 5. Inserción de datos no estructurados JSON en la tabla objetivo (estructurados)
+
+- Opción 1: Crear tabla "AS"
+```sql
+CREATE OR REPLACE TABLE Languages AS
+select
+   RAW_FILE:first_name::STRING as First_name,
+   f.value:language::STRING as First_language,
+   f.value:level::STRING as Level_spoken
+from PRIMERABBDD.PRIMERESQUEMA.JSON_RAW, table(flatten(RAW_FILE:spoken_languages)) f;
+
+SELECT * FROM Languages;
+```
+![](./img/opcion_1.png)
+
+
+
+- Opción 2: Utilizar INSERT INTO (previa creación de la tabla)
+```sql
+CREATE OR REPLACE TABLE Languages AS
+INSERT INTO Languages
+select
+   RAW_FILE:first_name::STRING as First_name,
+   f.value:language::STRING as First_language,
+   f.value:level::STRING as Level_spoken
+from PRIMERABBDD.PRIMERESQUEMA.JSON_RAW, table(flatten(RAW_FILE:spoken_languages)) f;
+
+
+SELECT * FROM Languages;
+```
+![](./img/opcion_2.png)
