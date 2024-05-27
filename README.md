@@ -2,6 +2,7 @@
 1. [Creación del stage y el fichero bruto con datos no estructurados (JSON)](#schema1)
 2. [Parseo y análisis del fichero no estructurado JSON](#schema2)
 3. [Manejo de datos nested y arrays](#schema3)
+4. [Jerarquías y flatten del fichero no estructurado JSON](#schema4)
 
 
 <hr>
@@ -89,7 +90,7 @@ FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
 
 <hr>
 
-<a name="schema1"></a>
+<a name="schema3"></a>
 
 ## 3. Manejo de datos nested y arrays
 
@@ -141,3 +142,94 @@ SELECT
 FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
 ```
 ![](./img/contar.png)
+
+
+<hr>
+
+<a name="schema4"></a>
+
+## 4. Jerarquías y flatten del fichero no estructurado JSON
+
+```sql
+SELECT 
+    RAW_FILE:spoken_languages as spoken_languages
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+```
+![](./img/jerarquia.png)
+
+
+- Contamos el número de elementos del array
+```sql
+SELECT 
+     array_size(RAW_FILE:spoken_languages) as spoken_languages
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+```
+![](./img/jerarquia_contar.png)
+
+
+- Creamos tabla
+```sql
+SELECT 
+     RAW_FILE:first_name::STRING as first_name,
+     array_size(RAW_FILE:spoken_languages) as spoken_languages
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+```
+![](./img/jerarquia_tabla.png)
+
+- Acceder a cada elemento
+```sql
+SELECT 
+    RAW_FILE:spoken_languages[0] as First_language
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW;
+```
+
+![](./img/jerarquia_1_elemento.png)
+
+- Acceder a los dos atributos
+```sql
+SELECT 
+    RAW_FILE:first_name::STRING as First_name,
+    RAW_FILE:spoken_languages[0].language::STRING as First_language,
+    RAW_FILE:spoken_languages[0].level::STRING as Level_spoken
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+```
+![](./img/jerarquia_tabla_2.png)
+
+
+- Unimos los elementos 1 y 2 (con índices 0 y 1 respectivamente)
+```sql
+SELECT 
+    RAW_FILE:id::int as id,
+    RAW_FILE:first_name::STRING as First_name,
+    RAW_FILE:spoken_languages[0].language::STRING as First_language,
+    RAW_FILE:spoken_languages[0].level::STRING as Level_spoken
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+UNION ALL 
+SELECT 
+    RAW_FILE:id::int as id,
+    RAW_FILE:first_name::STRING as First_name,
+    RAW_FILE:spoken_languages[1].language::STRING as First_language,
+    RAW_FILE:spoken_languages[1].level::STRING as Level_spoken
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+UNION ALL 
+SELECT 
+    RAW_FILE:id::int as id,
+    RAW_FILE:first_name::STRING as First_name,
+    RAW_FILE:spoken_languages[2].language::STRING as First_language,
+    RAW_FILE:spoken_languages[2].level::STRING as Level_spoken
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW
+ORDER BY ID
+```
+![](./img/jerarquia_tabla_3.png)
+
+- Utilizamos el método flatten (más óptimo y eficiente)
+`FLATTEN` es una función de Snowflake que aplanará (desanidará) un array o un objeto JSON anidado.
+```sql
+SELECT
+    RAW_FILE:first_name::STRING AS First_name,
+    f.value:language::STRING AS First_language,
+    f.value:level::STRING AS Level_spoken
+FROM PRIMERABBDD.PRIMERESQUEMA.JSON_RAW,
+    TABLE(FLATTEN(RAW_FILE:spoken_languages)) f;
+```
+![](./img/jerarquia_flatten.png)
